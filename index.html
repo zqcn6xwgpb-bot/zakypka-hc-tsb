@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Закупка ХЦ - Баранчик (V7 + Print)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDo0IvJJbBSXCs7u2rpZ8fHrwK4Nm5isFo",
+            authDomain: "baranchik-checklist.firebaseapp.com",
+            databaseURL: "https://baranchik-checklist-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "baranchik-checklist",
+            storageBucket: "baranchik-checklist.firebasestorage.app",
+            messagingSenderId: "374378353806",
+            appId: "1:374378353806:web:95ff4b94c14fad8bece5df"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        
+        window.db = db;
+        window.fRef = ref;
+        window.fSet = set;
+        window.fOnValue = onValue;
+        window.fPush = push;
+        window.fRemove = remove;
+        
+        window.dispatchEvent(new Event('firebase-ready'));
+    </script>
+
+    <style>
+        @media (max-width: 768px) {
+            .mobile-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            table { min-width: 600px; }
+            th:first-child, td:first-child { position: sticky; left: 0; background: white; z-index: 10; min-width: 140px; }
+        }
+
+        /* --- СТИЛІ ДЛЯ ДРУКУ --- */
+        @media print {
+            body { background: white !important; padding: 0 !important; }
+            .max-w-5xl { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            
+            /* Сховати непотрібні елементи */
+            button, .grid, #passwordModal, #lockBtn, .bg-slate-800 button, .border-t-4, .flex-wrap {
+                display: none !important;
+            }
+            
+            /* Спростити шапку */
+            .bg-white.p-4.rounded-xl { border: none !important; shadow: none !important; padding: 0 0 20px 0 !important; }
+            h1 { font-size: 24px !important; color: black !important; }
+            
+            /* Спростити таблиці */
+            .bg-white.rounded-xl { border: 1px solid #ccc !important; shadow: none !important; margin-bottom: 20px !important; break-inside: avoid; }
+            .bg-slate-800 { background: #eee !important; color: black !important; border-bottom: 2px solid black !important; }
+            table { min-width: 100% !important; border-collapse: collapse !important; }
+            th, td { border: 1px solid #ddd !important; padding: 6px !important; color: black !important; }
+            
+            /* Замінити поля введення на текст */
+            input { border: none !important; background: transparent !important; color: black !important; width: auto !important; appearance: none; -moz-appearance: textfield; }
+            .bg-blue-50\/50 { background: transparent !important; }
+            
+            /* Підсвітити важливе жирним */
+            .text-blue-700 { color: black !important; font-weight: 900 !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen pb-20 font-sans">
+
+    <div class="max-w-5xl mx-auto p-2 md:p-4">
+        <div class="bg-white p-4 rounded-xl shadow-sm mb-6 border-t-4 border-blue-600">
+            <div class="flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800 uppercase tracking-tight">🛒 ЧЕК-ЛИСТ ХЦ</h1>
+                    <p id="date" class="text-xs text-slate-500 font-medium"></p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="shareToTelegram()" class="bg-sky-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow hover:bg-sky-600 flex items-center gap-1">
+                        ✈️ TG ЗАМОВЛЕННЯ
+                    </button>
+                    <button onclick="window.print()" class="bg-slate-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow hover:bg-slate-800">🖨️ ДРУК</button>
+                    <button onclick="exportToExcel()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow hover:bg-green-700">EXCEL</button>
+                    <button onclick="clearStocks()" class="bg-red-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow hover:bg-red-600">ОЧИСТИТИ</button>
+                    <button onclick="toggleLock()" id="lockBtn" class="bg-amber-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow">🔒 НОРМИ</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500">
+                <p class="text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-widest">Додати позицію</p>
+                <div class="flex gap-2">
+                    <select id="selCat" class="border rounded p-2 text-sm w-1/3 bg-slate-50 outline-none"></select>
+                    <input type="text" id="inpName" placeholder="Назва..." class="border rounded p-2 text-sm flex-1 outline-none">
+                    <button onclick="addItem()" class="bg-blue-600 text-white px-4 py-2 rounded font-bold">OK</button>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-purple-500">
+                <p class="text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-widest">Новий розділ</p>
+                <div class="flex gap-2">
+                    <input type="text" id="inpCat" placeholder="Назва розділу..." class="border rounded p-2 text-sm flex-1 outline-none">
+                    <button onclick="addCategory()" class="bg-purple-600 text-white px-4 py-2 rounded font-bold">СТВОРИТИ</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="checklist-container" class="space-y-6">
+            <div class="text-center p-10 text-slate-400 animate-pulse font-medium">Синхронізація даних...</div>
+        </div>
+    </div>
+
+    <div id="passwordModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl w-72 text-center">
+            <p class="font-bold mb-4 text-slate-800">Доступ до редагування норм</p>
+            <input type="password" id="passInput" class="w-full border-2 p-2 mb-4 text-center rounded-xl outline-none focus:border-amber-500 text-lg">
+            <div class="flex gap-2">
+                <button onclick="checkPass()" class="flex-1 bg-amber-500 text-white py-2 rounded-xl font-bold">ОК</button>
+                <button onclick="closePass()" class="flex-1 bg-slate-100 py-2 rounded-xl font-bold text-slate-500">СКАСУВАТИ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PIN = "3196";
+        let isUnlocked = false;
+        let store = { categories: {}, items: {} };
+
+        window.addEventListener('firebase-ready', () => {
+            document.getElementById('date').textContent = new Date().toLocaleDateString('uk-UA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            window.fOnValue(window.fRef(window.db, 'v7'), (snap) => {
+                const rawData = snap.val() || {};
+                store.categories = rawData.categories || {};
+                store.items = rawData.items || {};
+                render();
+                updateSelect();
+            });
+        });
+
+        function render() {
+            const container = document.getElementById('checklist-container');
+            let html = '';
+
+            const catIds = Object.keys(store.categories).sort((a, b) => 
+                store.categories[a].name.localeCompare(store.categories[b].name));
+
+            if (catIds.length === 0) {
+                container.innerHTML = '<div class="text-center p-10 bg-white rounded-xl text-slate-400">Додайте перший розділ.</div>';
+                return;
+            }
+
+            catIds.forEach(catId => {
+                const cat = store.categories[catId];
+                html += `
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-slate-200">
+                    <div class="bg-slate-800 text-white px-4 py-2 font-bold text-[11px] flex justify-between items-center uppercase tracking-widest">
+                        ${cat.name}
+                        ${isUnlocked ? `<button onclick="deleteCategory('${catId}')" class="text-red-400 text-[10px]">Видалити розділ</button>` : ''}
+                    </div>
+                    <div class="mobile-scroll">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 text-[10px] text-slate-400 uppercase border-b font-bold">
+                                    <th class="p-3 text-left">Товар</th>
+                                    <th class="p-3 w-20">Залишок</th>
+                                    <th class="p-3 w-16">Бд</th>
+                                    <th class="p-3 w-16 border-r">Вх</th>
+                                    <th class="p-3 w-16 text-blue-600">Зам. Бд</th>
+                                    <th class="p-3 w-16 text-blue-600">Зам. Вх</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+
+                Object.keys(store.items)
+                    .filter(id => store.items[id].catId === catId)
+                    .sort((a, b) => store.items[a].name.localeCompare(store.items[b].name))
+                    .forEach(itemId => {
+                        const item = store.items[itemId];
+                        const s = parseFloat(item.s) || 0;
+                        const wd = parseFloat(item.wd) || 0;
+                        const we = parseFloat(item.we) || 0;
+                        const orderWd = Math.max(0, wd - s);
+                        const orderWe = Math.max(0, we - s);
+
+                        html += `
+                        <tr class="border-b last:border-0 hover:bg-slate-50">
+                            <td class="p-3 font-medium text-slate-700">
+                                <div class="flex justify-between items-center">
+                                    ${item.name}
+                                    ${isUnlocked ? `<button onclick="deleteItem('${itemId}')" class="text-red-300 ml-2">✕</button>` : ''}
+                                </div>
+                            </td>
+                            <td class="p-1"><input type="number" step="0.1" value="${item.s || ''}" onchange="updateVal('${itemId}','s',this.value)" class="w-full border rounded p-1 text-center bg-blue-50/50 outline-none font-bold text-blue-900"></td>
+                            <td class="p-1"><input type="number" step="0.1" value="${item.wd || ''}" ${!isUnlocked ? 'readonly' : ''} onchange="updateVal('${itemId}','wd',this.value)" class="w-full border rounded p-1 text-center ${!isUnlocked ? 'bg-slate-100 text-slate-400' : 'bg-white'}"></td>
+                            <td class="p-1 border-r"><input type="number" step="0.1" value="${item.we || ''}" ${!isUnlocked ? 'readonly' : ''} onchange="updateVal('${itemId}','we',this.value)" class="w-full border rounded p-1 text-center ${!isUnlocked ? 'bg-slate-100 text-slate-400' : 'bg-white'}"></td>
+                            <td class="p-3 text-center font-bold text-blue-700">${orderWd > 0 ? orderWd.toFixed(1) : ''}</td>
+                            <td class="p-3 text-center font-bold text-blue-700">${orderWe > 0 ? orderWe.toFixed(1) : ''}</td>
+                        </tr>`;
+                    });
+                html += `</tbody></table></div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // --- ФУНКЦІЇ (TG, EXCEL, FIREBASE) ---
+        function shareToTelegram() {
+            let message = "📝 *ЗАМОВЛЕННЯ ХЦ - БАРАНЧИК*\n";
+            const today = new Date();
+            const dayOfWeek = today.getDay(); 
+            const isWeekendMode = [0, 5, 6].includes(dayOfWeek);
+            message += `📅 Дата: ${today.toLocaleDateString('uk-UA')}\n`;
+            message += `📊 Режим: *${isWeekendMode ? "Вихідні" : "Будні"}*\n\n`;
+            let hasOrder = false;
+            Object.keys(store.categories).sort((a,b) => store.categories[a].name.localeCompare(store.categories[b].name)).forEach(catId => {
+                let catText = `*${store.categories[catId].name}:*\n`;
+                let catHasItems = false;
+                Object.keys(store.items).filter(id => store.items[id].catId === catId).forEach(itemId => {
+                    const i = store.items[itemId];
+                    const s = parseFloat(i.s) || 0;
+                    const norm = isWeekendMode ? (parseFloat(i.we) || 0) : (parseFloat(i.wd) || 0);
+                    const order = Math.max(0, norm - s);
+                    if (order > 0) {
+                        catText += `• ${i.name}: *${order.toFixed(1)}*\n`;
+                        catHasItems = true; hasOrder = true;
+                    }
+                });
+                if (catHasItems) message += catText + "\n";
+            });
+            if (!hasOrder) { alert("Залишки в нормі"); return; }
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        function addCategory() {
+            const name = document.getElementById('inpCat').value.trim().toUpperCase();
+            if (!name) return;
+            window.fSet(window.fPush(window.fRef(window.db, 'v7/categories')), { name }).then(() => { document.getElementById('inpCat').value = ''; });
+        }
+
+        function addItem() {
+            const catId = document.getElementById('selCat').value;
+            const name = document.getElementById('inpName').value.trim();
+            if (!catId || !name) return;
+            window.fSet(window.fPush(window.fRef(window.db, 'v7/items')), { catId, name, s: '', wd: '', we: '' }).then(() => { document.getElementById('inpName').value = ''; });
+        }
+
+        function updateVal(id, field, val) { window.fSet(window.fRef(window.db, `v7/items/${id}/${field}`), val); }
+
+        function deleteItem(id) { if (confirm('Видалити?')) window.fRemove(window.fRef(window.db, `v7/items/${id}`)); }
+
+        function deleteCategory(id) {
+            if (confirm('Видалити розділ?')) {
+                Object.keys(store.items).forEach(itemId => { if (store.items[itemId].catId === id) window.fRemove(window.fRef(window.db, `v7/items/${itemId}`)); });
+                window.fRemove(window.fRef(window.db, `v7/categories/${id}`));
+            }
+        }
+
+        function clearStocks() { if (confirm('Очистити залишки?')) { Object.keys(store.items).forEach(id => window.fSet(window.fRef(window.db, `v7/items/${id}/s`), '')); } }
+
+        function updateSelect() {
+            document.getElementById('selCat').innerHTML = Object.keys(store.categories)
+                .sort((a,b) => store.categories[a].name.localeCompare(store.categories[b].name))
+                .map(id => `<option value="${id}">${store.categories[id].name}</option>`).join('') || '<option>Створіть розділ</option>';
+        }
+
+        function toggleLock() { if (isUnlocked) { isUnlocked = false; render(); syncBtn(); } else { document.getElementById('passwordModal').style.display = 'flex'; document.getElementById('passInput').focus(); } }
+
+        function checkPass() { if (document.getElementById('passInput').value === PIN) { isUnlocked = true; closePass(); render(); syncBtn(); } else alert('Невірний пароль'); }
+
+        function syncBtn() {
+            const b = document.getElementById('lockBtn');
+            b.textContent = isUnlocked ? "🔓 ЗАБЛОКУВАТИ" : "🔒 НОРМИ";
+            b.className = isUnlocked ? "bg-green-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow" : "bg-amber-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow";
+        }
+
+        function closePass() { document.getElementById('passwordModal').style.display = 'none'; document.getElementById('passInput').value = ''; }
+
+        function exportToExcel() {
+            const rows = [['Розділ', 'Товар', 'Залишок', 'Будні', 'Вихідні', 'Замовлення']];
+            const isWeekend = [0,5,6].includes(new Date().getDay());
+            Object.keys(store.categories).forEach(catId => {
+                const catName = store.categories[catId].name;
+                Object.keys(store.items).filter(id => store.items[id].catId === catId).forEach(itemId => {
+                    const i = store.items[itemId];
+                    const s = parseFloat(i.s) || 0;
+                    const norm = isWeekend ? (parseFloat(i.we) || 0) : (parseFloat(i.wd) || 0);
+                    rows.push([catName, i.name, i.s, i.wd, i.we, Math.max(0, norm - s) || '']);
+                });
+            });
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Закупка");
+            XLSX.writeFile(wb, `Zakupka_${new Date().toLocaleDateString()}.xlsx`);
+        }
+    </script>
+</body>
+</html>
