@@ -52,7 +52,43 @@
             --amber: #f59e0b;
             --amber-dim: rgba(245,158,11,0.15);
             --red: #ef4444;
+            --header-bg: rgba(10,10,15,0.9);
         }
+
+        /* ── LIGHT THEME ── */
+        body.light {
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --surface2: #f8fafc;
+            --border: #e2e8f0;
+            --accent: #2563eb;
+            --accent-dim: rgba(37,99,235,0.1);
+            --accent-glow: rgba(37,99,235,0.2);
+            --accent2: #7c3aed;
+            --text: #0f172a;
+            --text-dim: #64748b;
+            --text-muted: #94a3b8;
+            --green: #16a34a;
+            --green-dim: rgba(22,163,74,0.1);
+            --amber: #d97706;
+            --amber-dim: rgba(217,119,6,0.1);
+            --red: #dc2626;
+            --header-bg: rgba(255,255,255,0.92);
+        }
+
+        body.light::before {
+            background: radial-gradient(circle, rgba(37,99,235,0.04) 0%, transparent 70%) !important;
+        }
+
+        /* ── THEME TOGGLE ── */
+        .theme-toggle {
+            display: flex; align-items: center; gap: 6px;
+            background: var(--surface2); border: 1px solid var(--border);
+            border-radius: 12px; padding: 7px 12px; cursor: pointer;
+            transition: all 0.2s; font-family: 'JetBrains Mono', monospace;
+            font-size: 14px; color: var(--text-dim); user-select: none;
+        }
+        .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -144,7 +180,7 @@
         #app-content { display: none; position: relative; z-index: 1; padding-bottom: 80px; }
 
         header {
-            background: rgba(10,10,15,0.9);
+            background: var(--header-bg);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
             padding: 16px 20px;
@@ -281,7 +317,7 @@
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
 
-        .inp-stock { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); color: #93c5fd; }
+        .inp-stock { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); color: var(--accent); }
         .inp-norm { background: var(--surface2); border-color: var(--border); color: var(--text-dim); }
         .inp-norm-edit { background: var(--amber-dim); border-color: rgba(245,158,11,0.25); color: var(--amber); }
         .inp-readonly { opacity: 0.35; pointer-events: none; }
@@ -403,6 +439,7 @@
                 </div>
             </div>
             <div class="header-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
                 <button class="hbtn hbtn-tg" onclick="shareToTelegram()">✈️ TG</button>
                 <button class="hbtn" onclick="exportToExcel()">📊 Excel</button>
                 <button class="hbtn" onclick="window.print()">🖨️ Друк</button>
@@ -627,7 +664,10 @@
         b.className = isUnlocked ? 'hbtn hbtn-lock unlocked' : 'hbtn hbtn-lock';
     }
 
-    function shareToTelegram() {
+    const TG_TOKEN = "7906609865:AAGxiiMSSnJcShk5SoxE7eVItyqDcWvyE38";
+    const TG_CHAT_ID = "-1002336484919";
+
+    async function shareToTelegram() {
         let message = "📝 *ЗАМОВЛЕННЯ ХЦ - БАРАНЧИК*\n";
         const today = new Date();
         const isWe = getIsWeekend();
@@ -649,7 +689,43 @@
                 if (catHasItems) message += catText + "\n";
             });
         if (!hasOrder) { alert("✅ Залишки в нормі"); return; }
-        window.open(`https://t.me/share/url?url=${encodeURIComponent(message)}`, '_blank');
+
+        const tgBtn = document.querySelector('.hbtn-tg');
+        const origText = tgBtn.textContent;
+        tgBtn.textContent = '⏳ Відправка...';
+        tgBtn.disabled = true;
+
+        try {
+            const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: TG_CHAT_ID, text: message, parse_mode: 'Markdown' })
+            });
+            if (res.ok) {
+                tgBtn.textContent = '✅ Відправлено!';
+                setTimeout(() => { tgBtn.textContent = origText; tgBtn.disabled = false; }, 2500);
+            } else {
+                throw new Error('TG error');
+            }
+        } catch(e) {
+            tgBtn.textContent = '❌ Помилка';
+            setTimeout(() => { tgBtn.textContent = origText; tgBtn.disabled = false; }, 2000);
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = document.body.classList.toggle('light');
+        document.getElementById('themeBtn').textContent = isLight ? '☀️' : '🌙';
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    }
+
+    // Restore saved theme
+    if (localStorage.getItem('theme') === 'light') {
+        document.body.classList.add('light');
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('themeBtn');
+            if (btn) btn.textContent = '☀️';
+        });
     }
 
     function exportToExcel() {
