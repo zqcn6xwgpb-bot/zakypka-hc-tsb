@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Закупка ХЦ - Баранчик</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <title>Закупка ХЦ — Баранчик</title>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
         const firebaseConfig = {
             apiKey: "AIzaSyDo0IvJJbBSXCs7u2rpZ8fHrwK4Nm5isFo",
             authDomain: "baranchik-checklist.firebaseapp.com",
@@ -19,7 +17,6 @@
             messagingSenderId: "374378353806",
             appId: "1:374378353806:web:95ff4b94c14fad8bece5df"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         window.db = db;
@@ -32,200 +29,274 @@
     </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
+        /* ══════════════ ЗМІННІ ══════════════ */
         :root {
-            --bg: #0a0a0f;
-            --surface: #111118;
-            --surface2: #18181f;
-            --border: #252530;
-            --accent: #3b82f6;
-            --accent-dim: rgba(59,130,246,0.15);
-            --accent-glow: rgba(59,130,246,0.3);
-            --accent2: #8b5cf6;
-            --text: #e8e8f0;
-            --text-dim: #5a5a70;
-            --text-muted: #35354a;
-            --green: #22c55e;
-            --green-dim: rgba(34,197,94,0.12);
-            --amber: #f59e0b;
-            --amber-dim: rgba(245,158,11,0.15);
-            --red: #ef4444;
-            --header-bg: rgba(10,10,15,0.9);
+            --bg:           #08080e;
+            --surface:      #0f0f17;
+            --surface2:     #16161f;
+            --surface3:     #1c1c28;
+            --border:       #1e1e2e;
+            --border2:      #26263a;
+            --accent:       #4f8ef7;
+            --accent-dim:   rgba(79,142,247,0.12);
+            --accent-glow:  rgba(79,142,247,0.25);
+            --accent2:      #a78bfa;
+            --text:         #eaeaf5;
+            --text-dim:     #5c5c80;
+            --text-muted:   #2e2e45;
+            --green:        #34d399;
+            --green-dim:    rgba(52,211,153,0.10);
+            --amber:        #fbbf24;
+            --amber-dim:    rgba(251,191,36,0.12);
+            --red:          #f87171;
+            --red-dim:      rgba(248,113,113,0.10);
+            --radius:       18px;
+            --radius-sm:    12px;
+            --shadow:       0 8px 32px rgba(0,0,0,0.5);
         }
 
         body.light {
-            --bg: #f1f5f9;
-            --surface: #ffffff;
-            --surface2: #f8fafc;
-            --border: #e2e8f0;
-            --accent: #2563eb;
-            --accent-dim: rgba(37,99,235,0.1);
-            --accent-glow: rgba(37,99,235,0.2);
-            --accent2: #7c3aed;
-            --text: #0f172a;
-            --text-dim: #64748b;
-            --text-muted: #94a3b8;
-            --green: #16a34a;
-            --green-dim: rgba(22,163,74,0.1);
-            --amber: #d97706;
-            --amber-dim: rgba(217,119,6,0.1);
-            --red: #dc2626;
-            --header-bg: rgba(255,255,255,0.92);
+            --bg:           #f0f4ff;
+            --surface:      #ffffff;
+            --surface2:     #f5f7ff;
+            --surface3:     #eef1fc;
+            --border:       #dde2f0;
+            --border2:      #c8cfe8;
+            --accent:       #2563eb;
+            --accent-dim:   rgba(37,99,235,0.08);
+            --accent-glow:  rgba(37,99,235,0.18);
+            --accent2:      #7c3aed;
+            --text:         #0d0d1a;
+            --text-dim:     #6b7280;
+            --text-muted:   #9ca3af;
+            --green:        #059669;
+            --green-dim:    rgba(5,150,105,0.08);
+            --amber:        #d97706;
+            --amber-dim:    rgba(217,119,6,0.08);
+            --red:          #dc2626;
+            --red-dim:      rgba(220,38,38,0.08);
+            --shadow:       0 4px 20px rgba(0,0,0,0.08);
         }
 
-        body.light::before {
-            background: radial-gradient(circle, rgba(37,99,235,0.04) 0%, transparent 70%) !important;
-        }
-
-        .theme-toggle {
-            display: flex; align-items: center; gap: 6px;
-            background: var(--surface2); border: 1px solid var(--border);
-            border-radius: 12px; padding: 7px 12px; cursor: pointer;
-            transition: all 0.2s; font-family: 'JetBrains Mono', monospace;
-            font-size: 14px; color: var(--text-dim); user-select: none;
-        }
-        .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        /* ══════════════ RESET ══════════════ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Syne', sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
         body::before {
             content: '';
-            position: fixed;
-            top: -30%; right: -10%;
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%);
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse 60% 40% at 80% 10%, rgba(79,142,247,0.04) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 30% at 10% 80%, rgba(167,139,250,0.03) 0%, transparent 60%);
             pointer-events: none; z-index: 0;
         }
 
+        /* ══════════════ AUTH SCREEN ══════════════ */
         #auth-screen {
             position: fixed; inset: 0;
             background: var(--bg);
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            z-index: 9999; padding: 20px;
+            z-index: 9999; padding: 24px; gap: 0;
+        }
+
+        .auth-card {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 28px;
+            padding: 40px 36px 36px;
+            width: 100%; max-width: 340px;
+            display: flex; flex-direction: column; align-items: center;
+            box-shadow: var(--shadow), 0 0 0 1px rgba(79,142,247,0.05);
+            position: relative; overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            border-radius: 28px 28px 0 0;
         }
 
         .auth-emoji {
-            font-size: 64px; margin-bottom: 18px;
+            font-size: 52px; margin-bottom: 16px;
             animation: auth-pulse 3s ease-in-out infinite;
-            filter: drop-shadow(0 0 24px rgba(59,130,246,0.5));
         }
 
         @keyframes auth-pulse {
-            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 24px rgba(59,130,246,0.5)); }
-            50% { transform: scale(1.06); filter: drop-shadow(0 0 42px rgba(59,130,246,0.8)); }
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 16px rgba(79,142,247,0.4)); }
+            50%       { transform: scale(1.07); filter: drop-shadow(0 0 32px rgba(79,142,247,0.7)); }
         }
 
         .auth-title {
-            font-size: 22px; font-weight: 800;
-            letter-spacing: 0.15em; text-transform: uppercase;
-            color: var(--text); margin-bottom: 6px;
+            font-size: 20px; font-weight: 800;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            color: var(--text); margin-bottom: 4px;
         }
 
         .auth-sub {
             font-family: 'JetBrains Mono', monospace;
             font-size: 9px; color: var(--text-dim);
-            letter-spacing: 0.35em; text-transform: uppercase;
-            margin-bottom: 44px;
+            letter-spacing: 0.3em; text-transform: uppercase;
+            margin-bottom: 32px;
         }
 
         #auth-pin {
-            width: 270px;
-            background: var(--surface);
-            border: 1.5px solid var(--border);
+            width: 100%;
+            background: var(--surface2);
+            border: 1.5px solid var(--border2);
             color: var(--text); text-align: center;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 36px; letter-spacing: 0.4em;
-            padding: 20px; border-radius: 20px;
-            outline: none; transition: all 0.2s; margin-bottom: 14px;
+            font-size: 32px; letter-spacing: 0.5em;
+            padding: 18px; border-radius: var(--radius);
+            outline: none; transition: all 0.2s; margin-bottom: 12px;
         }
 
         #auth-pin:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-dim), 0 20px 40px rgba(0,0,0,0.4);
+            background: var(--surface3);
+            box-shadow: 0 0 0 3px var(--accent-dim);
         }
 
         .auth-btn {
-            width: 270px; background: var(--accent); color: white;
-            font-family: 'Syne', sans-serif;
-            font-weight: 800; font-size: 12px;
-            letter-spacing: 0.18em; text-transform: uppercase;
-            padding: 18px; border-radius: 20px; border: none; cursor: pointer;
-            box-shadow: 0 8px 28px var(--accent-glow); transition: all 0.15s;
+            width: 100%; background: var(--accent); color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700; font-size: 13px;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            padding: 16px; border-radius: var(--radius); border: none; cursor: pointer;
+            box-shadow: 0 6px 20px var(--accent-glow);
+            transition: all 0.18s;
         }
-
+        .auth-btn:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 10px 28px var(--accent-glow); }
         .auth-btn:active { transform: scale(0.97); }
 
         #auth-error {
             color: var(--red); font-size: 11px; margin-top: 12px;
             opacity: 0; transition: opacity 0.2s; height: 16px;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'JetBrains Mono', monospace; text-align: center;
         }
         #auth-error.show { opacity: 1; }
 
-        #app-content { display: none; position: relative; z-index: 1; padding-bottom: 80px; }
+        .auth-hint {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8px; color: var(--text-muted);
+            letter-spacing: 0.2em; text-transform: uppercase;
+            margin-top: 20px; text-align: center;
+        }
 
+        /* ══════════════ APP ══════════════ */
+        #app-content { display: none; position: relative; z-index: 1; min-height: 100vh; }
+
+        /* ══════════════ HEADER ══════════════ */
         header {
-            background: var(--header-bg);
-            backdrop-filter: blur(20px);
+            background: var(--surface);
             border-bottom: 1px solid var(--border);
-            padding: 16px 20px;
-            position: relative; /* Не зафіксована */
-            z-index: 40;
+            padding: 14px 20px;
+            position: sticky; top: 0; z-index: 40;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
         }
 
         .header-inner {
-            max-width: 900px; margin: 0 auto;
+            max-width: 960px; margin: 0 auto;
             display: flex; justify-content: space-between;
             align-items: center; gap: 12px; flex-wrap: wrap;
         }
 
-        .logo-mark { font-size: 17px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+        .logo-wrap { display: flex; align-items: center; gap: 10px; }
+
+        .logo-icon {
+            width: 38px; height: 38px; border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; box-shadow: 0 4px 12px var(--accent-glow);
+            flex-shrink: 0;
+        }
+
+        .logo-text { display: flex; flex-direction: column; gap: 2px; }
+        .logo-mark { font-size: 15px; font-weight: 800; letter-spacing: 0.05em; color: var(--text); }
         .logo-sub {
             font-family: 'JetBrains Mono', monospace;
             font-size: 8px; color: var(--accent);
-            letter-spacing: 0.3em; text-transform: uppercase; margin-top: 3px;
+            letter-spacing: 0.25em; text-transform: uppercase;
         }
+
+        .header-center { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 
         #date-label {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 9px; color: var(--text-dim); letter-spacing: 0.08em;
+            font-size: 9px; color: var(--text-dim); letter-spacing: 0.06em;
         }
 
-        .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .status-row { display: flex; gap: 6px; align-items: center; }
+
+        .badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase;
+            padding: 3px 9px; border-radius: 8px; border: 1px solid transparent;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        .badge-sync      { background: var(--green-dim); color: var(--green); border-color: rgba(52,211,153,0.2); }
+        .badge-sync-wait { background: var(--amber-dim); color: var(--amber); border-color: rgba(251,191,36,0.2); }
+        .badge-weekday   { background: var(--green-dim); color: var(--green); border-color: rgba(52,211,153,0.2); }
+        .badge-weekend   { background: var(--amber-dim); color: var(--amber); border-color: rgba(251,191,36,0.2); }
+
+        .header-actions { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
 
         .hbtn {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-            padding: 8px 14px; border-radius: 12px; border: 1px solid var(--border);
-            cursor: pointer; transition: all 0.15s; background: var(--surface2); color: var(--text-dim);
+            font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+            padding: 8px 13px; border-radius: 10px; border: 1px solid var(--border2);
+            cursor: pointer; transition: all 0.15s;
+            background: var(--surface2); color: var(--text-dim);
+            display: flex; align-items: center; gap: 5px;
         }
+        .hbtn:hover { color: var(--text); border-color: var(--accent); background: var(--accent-dim); }
+        .hbtn-tg      { background: rgba(0,136,204,0.10); border-color: rgba(0,136,204,0.25); color: #38bdf8; }
+        .hbtn-tg:hover { background: rgba(0,136,204,0.2); border-color: rgba(0,136,204,0.5); }
+        .hbtn-lock    { background: var(--amber-dim); border-color: rgba(251,191,36,0.3); color: var(--amber); }
+        .hbtn-lock:hover { background: rgba(251,191,36,0.2); }
+        .hbtn-lock.unlocked { background: var(--green-dim); border-color: rgba(52,211,153,0.3); color: var(--green); }
+        .hbtn-lock.unlocked:hover { background: rgba(52,211,153,0.2); }
+        .hbtn-clear   { background: var(--red-dim); border-color: rgba(248,113,113,0.25); color: var(--red); }
+        .hbtn-clear:hover { background: rgba(248,113,113,0.2); }
 
-        .hbtn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
-        .hbtn-tg { background: rgba(0,136,204,0.15); border-color: rgba(0,136,204,0.3); color: #38bdf8; }
-        .hbtn-lock { background: var(--amber-dim); border-color: rgba(245,158,11,0.3); color: var(--amber); }
-        .hbtn-lock.unlocked { background: var(--green-dim); border-color: rgba(34,197,94,0.3); color: var(--green); }
-        .hbtn-clear { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.2); color: #f87171; }
+        .theme-btn {
+            width: 34px; height: 34px; border-radius: 10px;
+            background: var(--surface2); border: 1px solid var(--border2);
+            cursor: pointer; transition: all 0.15s;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px;
+        }
+        .theme-btn:hover { border-color: var(--accent); background: var(--accent-dim); }
 
-        main { max-width: 900px; margin: 0 auto; padding: 16px 16px; }
+        /* ══════════════ MAIN ══════════════ */
+        main { max-width: 960px; margin: 0 auto; padding: 20px 16px 60px; }
 
-        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+        /* ══════════════ CONTROLS ══════════════ */
+        .controls-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px; margin-bottom: 24px;
+        }
         @media (max-width: 600px) { .controls-grid { grid-template-columns: 1fr; } }
 
         .control-card {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: 20px; padding: 16px 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 16px 18px;
+            transition: border-color 0.2s;
         }
+        .control-card:hover { border-color: var(--border2); }
 
         .control-label {
             font-family: 'JetBrains Mono', monospace;
@@ -236,243 +307,347 @@
         .control-row { display: flex; gap: 8px; }
 
         select, input[type="text"] {
-            background: var(--surface2); border: 1px solid var(--border);
-            color: var(--text); font-family: 'Syne', sans-serif; font-size: 12px;
-            padding: 10px 12px; border-radius: 12px; outline: none;
-            transition: border-color 0.2s; flex: 1;
+            background: var(--surface2); border: 1px solid var(--border2);
+            color: var(--text); font-family: 'Inter', sans-serif; font-size: 13px;
+            padding: 10px 13px; border-radius: var(--radius-sm); outline: none;
+            transition: all 0.2s; flex: 1; min-width: 0;
         }
-
-        select:focus, input[type="text"]:focus { border-color: var(--accent); }
+        select:focus, input[type="text"]:focus {
+            border-color: var(--accent);
+            background: var(--surface3);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
 
         .ctrl-btn {
             background: var(--accent); color: white;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
-            padding: 10px 16px; border-radius: 12px; border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px; font-weight: 700;
+            padding: 10px 16px; border-radius: var(--radius-sm); border: none;
             cursor: pointer; white-space: nowrap; transition: all 0.15s;
+            box-shadow: 0 3px 10px var(--accent-glow);
         }
+        .ctrl-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
         .ctrl-btn:active { transform: scale(0.97); }
-        .ctrl-btn-purple { background: var(--accent2); }
+        .ctrl-btn-purple { background: var(--accent2); box-shadow: 0 3px 10px rgba(167,139,250,0.25); }
 
+        /* ══════════════ КАТЕГОРІЇ ══════════════ */
         .category-block {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: 22px; overflow: hidden; margin-bottom: 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius); overflow: hidden;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+            transition: border-color 0.2s;
         }
+        .category-block:hover { border-color: var(--border2); }
 
         .cat-header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 14px 20px; background: var(--surface2); border-bottom: 1px solid var(--border);
+            padding: 13px 20px;
+            background: linear-gradient(90deg, var(--surface2) 0%, var(--surface3) 100%);
+            border-bottom: 1px solid var(--border);
         }
 
         .cat-title {
             font-family: 'JetBrains Mono', monospace;
             font-size: 10px; font-weight: 700;
-            letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent);
+            letter-spacing: 0.22em; text-transform: uppercase;
+            color: var(--accent);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .cat-title::before {
+            content: '';
+            display: inline-block;
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
         }
 
         .del-cat-btn {
             font-size: 9px; color: var(--text-muted); background: none; border: none;
-            cursor: pointer; font-family: 'JetBrains Mono', monospace; transition: color 0.2s;
+            cursor: pointer; font-family: 'JetBrains Mono', monospace;
+            transition: all 0.15s; padding: 4px 8px; border-radius: 6px;
+            letter-spacing: 0.05em;
         }
-        .del-cat-btn:hover { color: var(--red); }
+        .del-cat-btn:hover { color: var(--red); background: var(--red-dim); }
 
-        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        
-        /* ── ВИПРАВЛЕННЯ ТАБЛИЦІ ── */
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            min-width: 600px; 
-            table-layout: fixed; /* Фіксуємо ширину колонок */
+        /* ══════════════ ТАБЛИЦЯ БЕЗ СКРОЛУ ══════════════ */
+        .table-wrap { overflow: hidden; width: 100%; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
         }
-        
-        thead tr { border-bottom: 1px solid var(--border); }
 
-        th, td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        colgroup col.c-name   { width: 32%; }
+        colgroup col.c-stock  { width: 14%; }
+        colgroup col.c-wd     { width: 11%; }
+        colgroup col.c-we     { width: 11%; }
+        colgroup col.c-ord-wd { width: 16%; }
+        colgroup col.c-ord-we { width: 16%; }
 
-        /* Задаємо чіткі пропорції колонок */
-        th:nth-child(1), td:nth-child(1) { width: 30%; text-align: left; padding-left: 20px; } /* Товар */
-        th:nth-child(2), td:nth-child(2) { width: 14%; } /* Залишок */
-        th:nth-child(3), td:nth-child(3) { width: 12%; } /* БД */
-        th:nth-child(4), td:nth-child(4) { width: 12%; } /* ВХ */
-        th:nth-child(5), td:nth-child(5) { width: 16%; } /* Зам БД */
-        th:nth-child(6), td:nth-child(6) { width: 16%; } /* Зам ВХ */
+        thead tr { background: var(--surface2); }
 
         th {
             font-family: 'JetBrains Mono', monospace; font-size: 8px;
-            font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
-            color: var(--text-muted); padding: 12px 6px; text-align: center;
+            font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--text-muted); padding: 10px 6px; text-align: center;
+            border-bottom: 1px solid var(--border);
         }
+        th:first-child { text-align: left; padding-left: 18px; }
 
-        tbody tr { border-bottom: 1px solid rgba(37,37,48,0.6); }
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.12s;
+        }
         tbody tr:last-child { border-bottom: none; }
-        td { padding: 8px 6px; vertical-align: middle; }
+        tbody tr:hover { background: var(--surface2); }
+
+        td {
+            padding: 7px 5px; vertical-align: middle;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        td:first-child { padding-left: 18px; }
 
         .item-name {
             font-size: 13px; font-weight: 600; color: var(--text);
             display: flex; justify-content: space-between; align-items: center;
-            white-space: normal; /* Дозволяємо перенос назви товару, якщо вона довга */
+            white-space: normal; word-break: break-word; gap: 4px;
         }
 
         .del-item-btn {
             color: var(--text-muted); background: none; border: none;
-            cursor: pointer; font-size: 11px; transition: color 0.2s; margin-left: 8px;
+            cursor: pointer; font-size: 11px; transition: all 0.15s;
+            flex-shrink: 0; padding: 2px 4px; border-radius: 4px;
         }
-        .del-item-btn:hover { color: var(--red); }
+        .del-item-btn:hover { color: var(--red); background: var(--red-dim); }
 
         input[type="number"] {
-            width: 100%; padding: 9px 4px; text-align: center;
-            border-radius: 10px; font-family: 'JetBrains Mono', monospace;
-            font-size: 12px; font-weight: 700; border: 1px solid transparent;
-            outline: none; transition: all 0.2s;
+            width: 100%; padding: 8px 4px; text-align: center;
+            border-radius: 9px; font-family: 'JetBrains Mono', monospace;
+            font-size: 12px; font-weight: 700; border: 1.5px solid transparent;
+            outline: none; transition: all 0.18s; background: transparent;
+            -moz-appearance: textfield;
         }
-
-        .inp-stock { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); color: var(--accent); }
-        .inp-norm { background: var(--surface2); border-color: var(--border); color: var(--text-dim); }
-        .inp-norm-edit { background: var(--amber-dim); border-color: rgba(245,158,11,0.25); color: var(--amber); }
-        .inp-readonly { opacity: 0.35; pointer-events: none; }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none; margin: 0;
+        }
+        .inp-stock    { background: rgba(79,142,247,0.07); border-color: rgba(79,142,247,0.18); color: var(--accent); }
+        .inp-norm     { background: var(--surface2); border-color: var(--border); color: var(--text-dim); }
+        .inp-norm-edit { background: var(--amber-dim); border-color: rgba(251,191,36,0.3); color: var(--amber); }
+        .inp-readonly  { opacity: 0.3; pointer-events: none; }
 
         input[type="number"]:focus {
-            transform: scale(1.1);
-            z-index: 100;
-            background: var(--surface2) !important;
+            transform: scale(1.08); z-index: 10; position: relative;
+            background: var(--surface3) !important;
             border-color: var(--accent) !important;
             color: var(--text) !important;
+            box-shadow: 0 0 0 3px var(--accent-dim);
         }
 
         .order-badge {
-            padding: 6px 10px; border-radius: 9px;
+            padding: 5px 6px; border-radius: 8px;
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px; font-weight: 700;
-            display: inline-block; text-align: center; width: 100%;
+            display: block; text-align: center; width: 100%;
         }
         .badge-empty { color: var(--text-muted); }
-        .badge-need { background: rgba(59,130,246,0.15); color: #93c5fd; }
+        .badge-need  { background: rgba(79,142,247,0.13); color: #93c5fd; border: 1px solid rgba(79,142,247,0.2); }
 
-        .mode-badge {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase;
-            padding: 4px 10px; border-radius: 8px;
-            background: var(--green-dim); color: var(--green);
-            border: 1px solid rgba(34,197,94,0.2);
+        .col-sep { border-right: 1px solid var(--border2); }
+
+        /* ══════════════ EMPTY STATE ══════════════ */
+        .empty-state {
+            text-align: center; padding: 60px 20px; color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em;
         }
 
-        #sync-status {
-            font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em;
-            padding: 3px 10px; border-radius: 8px; display: inline-block;
-        }
-        .sync-ok { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
-
+        /* ══════════════ MODAL ══════════════ */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.75);
             display: none; align-items: center; justify-content: center;
-            z-index: 500; backdrop-filter: blur(8px);
+            z-index: 500; backdrop-filter: blur(10px); padding: 20px;
         }
         .modal-overlay.open { display: flex; }
 
         .modal-box {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: 24px; padding: 28px 24px;
-            width: 90%; max-width: 320px; text-align: center;
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 26px; padding: 32px 28px 28px;
+            width: 100%; max-width: 300px; text-align: center;
+            box-shadow: var(--shadow);
+            position: relative; overflow: hidden;
+            animation: modal-in 0.2s ease;
+        }
+        .modal-box::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--amber), #f59e0b);
+        }
+        @keyframes modal-in {
+            from { opacity: 0; transform: scale(0.94) translateY(8px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        .modal-title { font-size: 15px; font-weight: 800; margin-bottom: 6px; letter-spacing: 0.05em; }
+        .modal-icon  { font-size: 36px; margin-bottom: 12px; }
+        .modal-title { font-size: 16px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+        .modal-sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8px; color: var(--text-dim);
+            letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 22px;
+        }
+
         #passInput {
             width: 100%; background: var(--surface2);
-            border: 1.5px solid var(--border); color: var(--text); text-align: center;
-            font-family: 'JetBrains Mono', monospace; font-size: 28px; letter-spacing: 0.3em;
-            padding: 14px; border-radius: 16px; outline: none; margin-bottom: 16px;
+            border: 1.5px solid var(--border2); color: var(--text); text-align: center;
+            font-family: 'JetBrains Mono', monospace; font-size: 28px; letter-spacing: 0.4em;
+            padding: 14px; border-radius: var(--radius); outline: none;
+            margin-bottom: 16px; transition: all 0.2s;
+        }
+        #passInput:focus {
+            border-color: var(--amber);
+            box-shadow: 0 0 0 3px var(--amber-dim);
+            background: var(--surface3);
         }
 
         .modal-btns { display: flex; gap: 10px; }
         .modal-btn {
-            flex: 1; padding: 12px; border-radius: 14px;
-            font-family: 'Syne', sans-serif; font-weight: 800;
-            font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-            border: none; cursor: pointer;
+            flex: 1; padding: 13px; border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif; font-weight: 700;
+            font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+            border: none; cursor: pointer; transition: all 0.15s;
         }
-        .modal-btn-ok { background: var(--amber); color: #1a0e00; }
-        .modal-btn-cancel { background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border); }
-
-        .empty-state {
-            text-align: center; padding: 60px 20px; color: var(--text-muted);
-            font-family: 'JetBrains Mono', monospace; font-size: 11px;
+        .modal-btn-ok {
+            background: var(--amber); color: #1a0e00;
+            box-shadow: 0 4px 14px rgba(251,191,36,0.3);
         }
+        .modal-btn-ok:hover { filter: brightness(1.08); transform: translateY(-1px); }
+        .modal-btn-cancel {
+            background: var(--surface2); color: var(--text-dim);
+            border: 1px solid var(--border2);
+        }
+        .modal-btn-cancel:hover { color: var(--text); background: var(--surface3); }
 
-        .col-bd { border-right: 1px solid var(--border); }
+        /* ══════════════ TOAST ══════════════ */
+        #toast {
+            position: fixed; bottom: 28px; left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--surface2); border: 1px solid var(--border2);
+            color: var(--text); font-family: 'JetBrains Mono', monospace;
+            font-size: 11px; padding: 12px 22px; border-radius: 50px;
+            box-shadow: var(--shadow); z-index: 9999;
+            opacity: 0; transition: all 0.25s; pointer-events: none;
+            white-space: nowrap;
+        }
+        #toast.show     { opacity: 1; transform: translateX(-50%) translateY(0); }
+        #toast.toast-ok  { border-color: rgba(52,211,153,0.4); color: var(--green); }
+        #toast.toast-err { border-color: rgba(248,113,113,0.4); color: var(--red); }
 
-        @media print {
-            #auth-screen, .header-actions, .controls-grid, .del-cat-btn, .del-item-btn { display: none !important; }
-            body { background: white !important; color: black !important; }
-            .category-block { border: 1px solid #ccc !important; break-inside: avoid; }
+        /* ══════════════ MOBILE ══════════════ */
+        @media (max-width: 480px) {
+            .header-center { display: none; }
+            .logo-sub { display: none; }
+            colgroup col.c-name   { width: 30%; }
+            colgroup col.c-stock  { width: 16%; }
+            colgroup col.c-wd     { width: 10%; }
+            colgroup col.c-we     { width: 10%; }
+            colgroup col.c-ord-wd { width: 17%; }
+            colgroup col.c-ord-we { width: 17%; }
+        }
+        @media (max-width: 360px) {
+            .hbtn { padding: 7px 9px; font-size: 8px; gap: 3px; }
+            .item-name { font-size: 12px; }
         }
     </style>
 </head>
 <body>
 
+<!-- ═══════════════ AUTH SCREEN ═══════════════ -->
 <div id="auth-screen">
-    <div class="auth-emoji">🛒</div>
-    <div class="auth-title">ХЦ Баранчик</div>
-    <div class="auth-sub">Чек-лист закупки</div>
-    <input type="password" id="auth-pin" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" autofocus placeholder="• • • •">
-    <button class="auth-btn" onclick="checkAuth()">Увійти</button>
-    <div id="auth-error">Невірний PIN.</div>
+    <div class="auth-card">
+        <div class="auth-emoji">🛒</div>
+        <div class="auth-title">ХЦ Баранчик</div>
+        <div class="auth-sub">Чек-лист закупки</div>
+        <input type="password" id="auth-pin"
+            inputmode="numeric" pattern="[0-9]*"
+            autocomplete="one-time-code" autofocus
+            placeholder="• • • •"
+            onkeydown="if(event.key==='Enter')checkAuth()">
+        <button class="auth-btn" onclick="checkAuth()">Увійти →</button>
+        <div id="auth-error">Невірний PIN — спробуйте ще раз</div>
+    </div>
+    <div class="auth-hint">Введіть PIN та натисніть Enter</div>
 </div>
 
+<!-- ═══════════════ APP ═══════════════ -->
 <div id="app-content">
     <header>
         <div class="header-inner">
-            <div>
-                <div class="logo-mark">🛒 Закупка ХЦ</div>
-                <div class="logo-sub">Чек-лист Баранчик</div>
-            </div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-                <div id="date-label"></div>
-                <div style="display:flex;gap:8px;align-items:center;">
-                    <span id="sync-status">Підключення...</span>
-                    <span id="mode-label" class="mode-badge">Будні</span>
+
+            <div class="logo-wrap">
+                <div class="logo-icon">🛒</div>
+                <div class="logo-text">
+                    <div class="logo-mark">Закупка ХЦ</div>
+                    <div class="logo-sub">Баранчик</div>
                 </div>
             </div>
+
+            <div class="header-center">
+                <div id="date-label"></div>
+                <div class="status-row">
+                    <span id="sync-status" class="badge badge-sync-wait">● Підключення...</span>
+                    <span id="mode-label" class="badge badge-weekday">Будні</span>
+                </div>
+            </div>
+
             <div class="header-actions">
-                <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+                <button class="theme-btn" onclick="toggleTheme()" id="themeBtn" title="Тема">🌙</button>
                 <button class="hbtn hbtn-tg" onclick="shareToTelegram()">✈️ TG</button>
-                <button class="hbtn" onclick="exportToExcel()">📊 Excel</button>
-                <button class="hbtn" onclick="window.print()">🖨️ Друк</button>
-                <button class="hbtn hbtn-clear" onclick="clearStocks()">✕ Очистити</button>
+                <button class="hbtn hbtn-clear" onclick="clearStocks()">✕ Очист.</button>
                 <button class="hbtn hbtn-lock" id="lockBtn" onclick="toggleLock()">🔒 Норми</button>
             </div>
+
         </div>
     </header>
 
     <main>
         <div class="controls-grid">
             <div class="control-card">
-                <div class="control-label">Додати позицію</div>
+                <div class="control-label">➕ Додати позицію</div>
                 <div class="control-row">
                     <select id="selCat"></select>
-                    <input type="text" id="inpName" placeholder="Назва...">
+                    <input type="text" id="inpName" placeholder="Назва товару..."
+                        onkeydown="if(event.key==='Enter')addItem()">
                     <button class="ctrl-btn" onclick="addItem()">OK</button>
                 </div>
             </div>
             <div class="control-card">
-                <div class="control-label">Новий розділ</div>
+                <div class="control-label">📁 Новий розділ</div>
                 <div class="control-row">
-                    <input type="text" id="inpCat" placeholder="Назва розділу...">
+                    <input type="text" id="inpCat" placeholder="Назва розділу..."
+                        onkeydown="if(event.key==='Enter')addCategory()">
                     <button class="ctrl-btn ctrl-btn-purple" onclick="addCategory()">Створити</button>
                 </div>
             </div>
         </div>
+
         <div id="checklist-container">
             <div class="empty-state">Синхронізація даних...</div>
         </div>
     </main>
 </div>
 
-<div class="modal-overlay" id="passwordModal">
+<!-- ═══════════════ MODAL ═══════════════ -->
+<div class="modal-overlay" id="passwordModal" onclick="if(event.target===this)closePass()">
     <div class="modal-box">
-        <div class="modal-title">🔐 Доступ до норм</div>
+        <div class="modal-icon">🔐</div>
+        <div class="modal-title">Доступ до норм</div>
         <div class="modal-sub">Введіть код адміністратора</div>
-        <input type="password" id="passInput" placeholder="••••" maxlength="10">
+        <input type="password" id="passInput" placeholder="••••" maxlength="10"
+            onkeydown="if(event.key==='Enter')checkPass()">
         <div class="modal-btns">
             <button class="modal-btn modal-btn-ok" onclick="checkPass()">Увійти</button>
             <button class="modal-btn modal-btn-cancel" onclick="closePass()">Скасувати</button>
@@ -480,120 +655,252 @@
     </div>
 </div>
 
+<!-- ═══════════════ TOAST ═══════════════ -->
+<div id="toast"></div>
+
 <script>
-    const PASS_ENTRY = "2024";
-    const PIN = "3196";
-    const TG_TOKEN = "7906609865:AAGxiiMSSnJcShk5SoxE7eVItyqDcWvyE38";
-    const TG_CHAT_ID = "-1002336484919";
+    const PASS_ENTRY   = "2024";
+    const PIN          = "3196";
+    const TG_TOKEN     = "7906609865:AAGxiiMSSnJcShk5SoxE7eVItyqDcWvyE38";
+    const TG_CHAT_ID   = "-1002336484919";
     const TG_THREAD_ID = 15;
 
+    /* ── AUTH ── */
     function checkAuth() {
         const val = document.getElementById('auth-pin').value.trim();
         if (val === PASS_ENTRY) {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-content').style.display = 'block';
         } else {
+            const pin = document.getElementById('auth-pin');
             const err = document.getElementById('auth-error');
+            pin.style.borderColor = 'var(--red)';
+            pin.style.boxShadow   = '0 0 0 3px var(--red-dim)';
             err.classList.add('show');
-            setTimeout(() => err.classList.remove('show'), 2500);
+            setTimeout(() => {
+                pin.style.borderColor = '';
+                pin.style.boxShadow   = '';
+                err.classList.remove('show');
+                pin.value = '';
+                pin.focus();
+            }, 1800);
         }
     }
 
+    /* ── TOAST ── */
+    let toastTimer;
+    function showToast(msg, type = '') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'show' + (type ? ' toast-' + type : '');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.className = '', 2800);
+    }
+
+    /* ── STATE ── */
     let isUnlocked = false;
     let store = { categories: {}, items: {} };
 
     function getIsWeekend() { return [0, 5, 6].includes(new Date().getDay()); }
 
+    /* ── FIREBASE ── */
     window.addEventListener('firebase-ready', () => {
-        document.getElementById('date-label').textContent = new Date().toLocaleDateString('uk-UA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('date-label').textContent =
+            new Date().toLocaleDateString('uk-UA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
         const isWe = getIsWeekend();
         const modeEl = document.getElementById('mode-label');
         if (isWe) {
             modeEl.textContent = 'Вихідні';
-            modeEl.style.cssText = 'background:rgba(245,158,11,0.12);color:#f59e0b;border-color:rgba(245,158,11,0.2);';
+            modeEl.className = 'badge badge-weekend';
         }
+
         window.fOnValue(window.fRef(window.db, 'v7'), snap => {
             const val = snap.val() || {};
             store.categories = val.categories || {};
-            store.items = val.items || {};
+            store.items      = val.items      || {};
             updateSelect();
             render();
             const el = document.getElementById('sync-status');
             el.textContent = '● Синхронізовано';
-            el.className = 'sync-ok';
+            el.className = 'badge badge-sync';
         });
     });
 
+    /* ── RENDER ── */
     function render() {
         const container = document.getElementById('checklist-container');
-        const catIds = Object.keys(store.categories).sort((a, b) => store.categories[a].name.localeCompare(store.categories[b].name));
-        if (!catIds.length) { container.innerHTML = '<div class="empty-state">Немає розділів</div>'; return; }
+        const catIds = Object.keys(store.categories)
+            .sort((a, b) => store.categories[a].name.localeCompare(store.categories[b].name));
+
+        if (!catIds.length) {
+            container.innerHTML = '<div class="empty-state">Немає розділів. Створіть перший! 👆</div>';
+            return;
+        }
 
         container.innerHTML = catIds.map(catId => {
-            const items = Object.keys(store.items).filter(id => store.items[id].catId === catId).sort((a, b) => store.items[a].name.localeCompare(store.items[b].name));
+            const items = Object.keys(store.items)
+                .filter(id => store.items[id].catId === catId)
+                .sort((a, b) => store.items[a].name.localeCompare(store.items[b].name));
+
             const rows = items.map(itemId => {
                 const item = store.items[itemId];
-                const s = parseFloat(item.s) || 0;
+                const s       = parseFloat(item.s)  || 0;
                 const orderWd = Math.max(0, (parseFloat(item.wd) || 0) - s);
                 const orderWe = Math.max(0, (parseFloat(item.we) || 0) - s);
                 return `<tr>
-                    <td><div class="item-name"><span>${item.name}</span>${isUnlocked ? `<button class="del-item-btn" onclick="deleteItem('${itemId}')">✕</button>` : ''}</div></td>
-                    <td><input type="number" step="0.1" value="${item.s || ''}" onchange="updateVal('${itemId}','s',this.value)" class="inp-stock"></td>
-                    <td><input type="number" step="0.1" value="${item.wd || ''}" ${!isUnlocked ? 'readonly' : ''} onchange="updateVal('${itemId}','wd',this.value)" class="${isUnlocked ? 'inp-norm-edit' : 'inp-norm inp-readonly'}"></td>
-                    <td class="col-bd"><input type="number" step="0.1" value="${item.we || ''}" ${!isUnlocked ? 'readonly' : ''} onchange="updateVal('${itemId}','we',this.value)" class="${isUnlocked ? 'inp-norm-edit' : 'inp-norm inp-readonly'}"></td>
-                    <td style="text-align:center"><span class="order-badge ${orderWd > 0 ? 'badge-need' : 'badge-empty'}">${orderWd > 0 ? orderWd.toFixed(1) : '—'}</span></td>
-                    <td style="text-align:center"><span class="order-badge ${orderWe > 0 ? 'badge-need' : 'badge-empty'}">${orderWe > 0 ? orderWe.toFixed(1) : '—'}</span></td>
+                    <td><div class="item-name">
+                        <span>${item.name}</span>
+                        ${isUnlocked ? `<button class="del-item-btn" onclick="deleteItem('${itemId}')" title="Видалити">✕</button>` : ''}
+                    </div></td>
+                    <td><input type="number" step="0.1" value="${item.s || ''}"
+                        onchange="updateVal('${itemId}','s',this.value)" class="inp-stock"></td>
+                    <td><input type="number" step="0.1" value="${item.wd || ''}"
+                        ${!isUnlocked ? 'readonly' : ''}
+                        onchange="updateVal('${itemId}','wd',this.value)"
+                        class="${isUnlocked ? 'inp-norm-edit' : 'inp-norm inp-readonly'}"></td>
+                    <td class="col-sep"><input type="number" step="0.1" value="${item.we || ''}"
+                        ${!isUnlocked ? 'readonly' : ''}
+                        onchange="updateVal('${itemId}','we',this.value)"
+                        class="${isUnlocked ? 'inp-norm-edit' : 'inp-norm inp-readonly'}"></td>
+                    <td><span class="order-badge ${orderWd > 0 ? 'badge-need' : 'badge-empty'}">${orderWd > 0 ? orderWd.toFixed(1) : '—'}</span></td>
+                    <td><span class="order-badge ${orderWe > 0 ? 'badge-need' : 'badge-empty'}">${orderWe > 0 ? orderWe.toFixed(1) : '—'}</span></td>
                 </tr>`;
             }).join('');
+
             return `<div class="category-block">
-                <div class="cat-header"><span class="cat-title">${store.categories[catId].name}</span>${isUnlocked ? `<button class="del-cat-btn" onclick="deleteCategory('${catId}')">✕ видалити розділ</button>` : ''}</div>
+                <div class="cat-header">
+                    <span class="cat-title">${store.categories[catId].name}</span>
+                    ${isUnlocked ? `<button class="del-cat-btn" onclick="deleteCategory('${catId}')">✕ видалити</button>` : ''}
+                </div>
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Товар</th><th>Залишок</th><th>Бд</th><th class="col-bd">Вх</th><th>Зам Бд</th><th>Зам Вх</th></tr></thead>
-                        <tbody>${rows || '<tr><td colspan="6" style="text-align:center;padding:15px">Пусто</td></tr>'}</tbody>
+                        <colgroup>
+                            <col class="c-name"><col class="c-stock">
+                            <col class="c-wd"><col class="c-we">
+                            <col class="c-ord-wd"><col class="c-ord-we">
+                        </colgroup>
+                        <thead><tr>
+                            <th>Товар</th><th>Залишок</th>
+                            <th>Бд</th><th class="col-sep">Вх</th>
+                            <th>Зам Бд</th><th>Зам Вх</th>
+                        </tr></thead>
+                        <tbody>${rows || '<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--text-muted);font-family:\'JetBrains Mono\',monospace;font-size:11px;">Порожньо</td></tr>'}</tbody>
                     </table>
                 </div>
             </div>`;
         }).join('');
     }
 
-    function updateSelect() { document.getElementById('selCat').innerHTML = Object.keys(store.categories).map(id => `<option value="${id}">${store.categories[id].name}</option>`).join('') || '<option>Створіть розділ</option>'; }
-    function addCategory() { const name = document.getElementById('inpCat').value.trim().toUpperCase(); if (name) window.fSet(window.fPush(window.fRef(window.db, 'v7/categories')), { name }).then(() => document.getElementById('inpCat').value = ''); }
-    function addItem() { const catId = document.getElementById('selCat').value; const name = document.getElementById('inpName').value.trim(); if (catId && name) window.fSet(window.fPush(window.fRef(window.db, 'v7/items')), { catId, name, s: '', wd: '', we: '' }).then(() => document.getElementById('inpName').value = ''); }
-    function updateVal(id, field, val) { window.fSet(window.fRef(window.db, `v7/items/${id}/${field}`), val); }
-    function deleteItem(id) { if (confirm('Видалити?')) window.fRemove(window.fRef(window.db, `v7/items/${id}`)); }
-    function deleteCategory(id) { if (confirm('Видалити розділ?')) window.fRemove(window.fRef(window.db, `v7/categories/${id}`)); }
-    function clearStocks() { if (confirm('Очистити залишки?')) Object.keys(store.items).forEach(id => updateVal(id, 's', '')); }
-    function toggleLock() { if (isUnlocked) { isUnlocked = false; render(); syncLockBtn(); } else { document.getElementById('passwordModal').classList.add('open'); } }
-    function checkPass() { if (document.getElementById('passInput').value === PIN) { isUnlocked = true; closePass(); render(); syncLockBtn(); } else { document.getElementById('passInput').value = ''; } }
-    function closePass() { document.getElementById('passwordModal').classList.remove('open'); document.getElementById('passInput').value = ''; }
-    function syncLockBtn() { const b = document.getElementById('lockBtn'); b.textContent = isUnlocked ? '🔓 Заблокувати' : '🔒 Норми'; b.className = isUnlocked ? 'hbtn hbtn-lock unlocked' : 'hbtn hbtn-lock'; }
+    /* ── CRUD ── */
+    function updateSelect() {
+        document.getElementById('selCat').innerHTML =
+            Object.keys(store.categories)
+                .map(id => `<option value="${id}">${store.categories[id].name}</option>`)
+                .join('') || '<option value="">— Створіть розділ —</option>';
+    }
 
+    function addCategory() {
+        const name = document.getElementById('inpCat').value.trim().toUpperCase();
+        if (!name) return;
+        window.fSet(window.fPush(window.fRef(window.db, 'v7/categories')), { name })
+            .then(() => { document.getElementById('inpCat').value = ''; showToast('✓ Розділ створено', 'ok'); });
+    }
+
+    function addItem() {
+        const catId = document.getElementById('selCat').value;
+        const name  = document.getElementById('inpName').value.trim();
+        if (!catId || !name) return;
+        window.fSet(window.fPush(window.fRef(window.db, 'v7/items')), { catId, name, s: '', wd: '', we: '' })
+            .then(() => { document.getElementById('inpName').value = ''; showToast('✓ Позицію додано', 'ok'); });
+    }
+
+    function updateVal(id, field, val) {
+        window.fSet(window.fRef(window.db, `v7/items/${id}/${field}`), val);
+    }
+
+    function deleteItem(id) {
+        if (confirm('Видалити позицію?'))
+            window.fRemove(window.fRef(window.db, `v7/items/${id}`));
+    }
+
+    function deleteCategory(id) {
+        if (confirm('Видалити розділ і всі позиції?'))
+            window.fRemove(window.fRef(window.db, `v7/categories/${id}`));
+    }
+
+    function clearStocks() {
+        if (confirm('Очистити всі залишки?'))
+            Object.keys(store.items).forEach(id => updateVal(id, 's', ''));
+    }
+
+    /* ── LOCK ── */
+    function toggleLock() {
+        if (isUnlocked) {
+            isUnlocked = false; render(); syncLockBtn();
+        } else {
+            document.getElementById('passwordModal').classList.add('open');
+            setTimeout(() => document.getElementById('passInput').focus(), 60);
+        }
+    }
+
+    function checkPass() {
+        if (document.getElementById('passInput').value === PIN) {
+            isUnlocked = true; closePass(); render(); syncLockBtn();
+            showToast('🔓 Норми розблоковано', 'ok');
+        } else {
+            const inp = document.getElementById('passInput');
+            inp.style.borderColor = 'var(--red)';
+            inp.style.boxShadow   = '0 0 0 3px var(--red-dim)';
+            setTimeout(() => { inp.style.borderColor = ''; inp.style.boxShadow = ''; inp.value = ''; inp.focus(); }, 800);
+        }
+    }
+
+    function closePass() {
+        document.getElementById('passwordModal').classList.remove('open');
+        document.getElementById('passInput').value = '';
+    }
+
+    function syncLockBtn() {
+        const b = document.getElementById('lockBtn');
+        b.textContent = isUnlocked ? '🔓 Заблок.' : '🔒 Норми';
+        b.className   = isUnlocked ? 'hbtn hbtn-lock unlocked' : 'hbtn hbtn-lock';
+    }
+
+    /* ── TELEGRAM ── */
     async function shareToTelegram() {
-        let message = "📝 *ЗАМОВЛЕННЯ ХЦ - БАРАНЧИК*\n\n";
         const isWe = getIsWeekend();
+        let message = `📝 *ЗАМОВЛЕННЯ ХЦ — БАРАНЧИК*\n_${new Date().toLocaleDateString('uk-UA')}_\n\n`;
         let hasOrder = false;
+
         Object.keys(store.categories).forEach(catId => {
             let catText = `*${store.categories[catId].name}:*\n`;
-            let itemsFound = false;
-            Object.keys(store.items).filter(id => store.items[id].catId === catId).forEach(itemId => {
-                const i = store.items[itemId];
-                const order = Math.max(0, (isWe ? parseFloat(i.we) : parseFloat(i.wd) || 0) - (parseFloat(i.s) || 0));
-                if (order > 0) { catText += `• ${i.name}: *${order.toFixed(1)}*\n`; itemsFound = true; hasOrder = true; }
-            });
-            if (itemsFound) message += catText + "\n";
+            let found   = false;
+            Object.keys(store.items)
+                .filter(id => store.items[id].catId === catId)
+                .forEach(itemId => {
+                    const i = store.items[itemId];
+                    const norm  = isWe ? parseFloat(i.we) : parseFloat(i.wd);
+                    const order = Math.max(0, (norm || 0) - (parseFloat(i.s) || 0));
+                    if (order > 0) { catText += `• ${i.name}: *${order.toFixed(1)}*\n`; found = true; hasOrder = true; }
+                });
+            if (found) message += catText + '\n';
         });
-        if (!hasOrder) return alert("Все в нормі");
+
+        if (!hasOrder) { showToast('Все в нормі — замовлення порожнє 👍', 'ok'); return; }
+
         try {
             const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ chat_id: TG_CHAT_ID, message_thread_id: TG_THREAD_ID, text: message, parse_mode: 'Markdown' })
             });
-            if (res.ok) alert("Відправлено!");
-        } catch(e) { alert("Помилка"); }
+            if (res.ok) showToast('✓ Відправлено в Telegram', 'ok');
+            else        showToast('Помилка відправки', 'err');
+        } catch(e) { showToast("Немає з'єднання", 'err'); }
     }
 
+    /* ── THEME ── */
     function toggleTheme() {
         const isLight = document.body.classList.toggle('light');
         document.getElementById('themeBtn').textContent = isLight ? '☀️' : '🌙';
@@ -602,21 +909,9 @@
 
     if (localStorage.getItem('theme') === 'light') {
         document.body.classList.add('light');
-        document.addEventListener('DOMContentLoaded', () => document.getElementById('themeBtn').textContent = '☀️');
-    }
-
-    function exportToExcel() {
-        const rows = [['Розділ', 'Товар', 'Залишок', 'Будні', 'Вихідні']];
-        Object.keys(store.categories).forEach(catId => {
-            Object.keys(store.items).filter(id => store.items[id].catId === catId).forEach(itemId => {
-                const i = store.items[itemId];
-                rows.push([store.categories[catId].name, i.name, i.s, i.wd, i.we]);
-            });
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('themeBtn').textContent = '☀️';
         });
-        const ws = XLSX.utils.aoa_to_sheet(rows);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Закупка");
-        XLSX.writeFile(wb, `Zakupka.xlsx`);
     }
 </script>
 </body>
