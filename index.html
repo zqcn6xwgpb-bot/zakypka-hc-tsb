@@ -55,7 +55,6 @@
             --header-bg: rgba(10,10,15,0.9);
         }
 
-        /* ── LIGHT THEME ── */
         body.light {
             --bg: #f1f5f9;
             --surface: #ffffff;
@@ -80,7 +79,6 @@
             background: radial-gradient(circle, rgba(37,99,235,0.04) 0%, transparent 70%) !important;
         }
 
-        /* ── THEME TOGGLE ── */
         .theme-toggle {
             display: flex; align-items: center; gap: 6px;
             background: var(--surface2); border: 1px solid var(--border);
@@ -109,7 +107,6 @@
             pointer-events: none; z-index: 0;
         }
 
-        /* ── AUTH ── */
         #auth-screen {
             position: fixed; inset: 0;
             background: var(--bg);
@@ -176,7 +173,6 @@
         }
         #auth-error.show { opacity: 1; }
 
-        /* ── APP ── */
         #app-content { display: none; position: relative; z-index: 1; padding-bottom: 80px; }
 
         header {
@@ -184,7 +180,8 @@
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
             padding: 16px 20px;
-            position: sticky; top: 0; z-index: 40;
+            position: relative; /* Не зафіксована */
+            z-index: 40;
         }
 
         .header-inner {
@@ -220,7 +217,7 @@
         .hbtn-lock.unlocked { background: var(--green-dim); border-color: rgba(34,197,94,0.3); color: var(--green); }
         .hbtn-clear { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.2); color: #f87171; }
 
-        main { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+        main { max-width: 900px; margin: 0 auto; padding: 16px 16px; }
 
         .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
         @media (max-width: 600px) { .controls-grid { grid-template-columns: 1fr; } }
@@ -280,25 +277,41 @@
         .del-cat-btn:hover { color: var(--red); }
 
         .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 520px; }
+        
+        /* ── ВИПРАВЛЕННЯ ТАБЛИЦІ ── */
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            min-width: 600px; 
+            table-layout: fixed; /* Фіксуємо ширину колонок */
+        }
+        
         thead tr { border-bottom: 1px solid var(--border); }
+
+        th, td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* Задаємо чіткі пропорції колонок */
+        th:nth-child(1), td:nth-child(1) { width: 30%; text-align: left; padding-left: 20px; } /* Товар */
+        th:nth-child(2), td:nth-child(2) { width: 14%; } /* Залишок */
+        th:nth-child(3), td:nth-child(3) { width: 12%; } /* БД */
+        th:nth-child(4), td:nth-child(4) { width: 12%; } /* ВХ */
+        th:nth-child(5), td:nth-child(5) { width: 16%; } /* Зам БД */
+        th:nth-child(6), td:nth-child(6) { width: 16%; } /* Зам ВХ */
 
         th {
             font-family: 'JetBrains Mono', monospace; font-size: 8px;
             font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
-            color: var(--text-muted); padding: 10px 12px; text-align: center;
+            color: var(--text-muted); padding: 12px 6px; text-align: center;
         }
-        th:first-child { text-align: left; padding-left: 20px; }
 
         tbody tr { border-bottom: 1px solid rgba(37,37,48,0.6); }
         tbody tr:last-child { border-bottom: none; }
-        tbody tr:hover { background: rgba(255,255,255,0.01); }
-        td { padding: 4px 6px; vertical-align: middle; }
-        td:first-child { padding: 12px 20px; }
+        td { padding: 8px 6px; vertical-align: middle; }
 
         .item-name {
             font-size: 13px; font-weight: 600; color: var(--text);
             display: flex; justify-content: space-between; align-items: center;
+            white-space: normal; /* Дозволяємо перенос назви товару, якщо вона довга */
         }
 
         .del-item-btn {
@@ -308,14 +321,11 @@
         .del-item-btn:hover { color: var(--red); }
 
         input[type="number"] {
-            width: 100%; padding: 9px 6px; text-align: center;
+            width: 100%; padding: 9px 4px; text-align: center;
             border-radius: 10px; font-family: 'JetBrains Mono', monospace;
             font-size: 12px; font-weight: 700; border: 1px solid transparent;
-            outline: none; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            -moz-appearance: textfield;
+            outline: none; transition: all 0.2s;
         }
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
 
         .inp-stock { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); color: var(--accent); }
         .inp-norm { background: var(--surface2); border-color: var(--border); color: var(--text-dim); }
@@ -323,20 +333,18 @@
         .inp-readonly { opacity: 0.35; pointer-events: none; }
 
         input[type="number"]:focus {
-            transform: scale(1.2) translateY(-2px);
-            z-index: 100; position: relative;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
+            transform: scale(1.1);
+            z-index: 100;
             background: var(--surface2) !important;
             border-color: var(--accent) !important;
             color: var(--text) !important;
         }
-        td:has(input:focus) { z-index: 50; position: relative; }
 
         .order-badge {
             padding: 6px 10px; border-radius: 9px;
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px; font-weight: 700;
-            display: inline-block; text-align: center; min-width: 48px;
+            display: inline-block; text-align: center; width: 100%;
         }
         .badge-empty { color: var(--text-muted); }
         .badge-need { background: rgba(59,130,246,0.15); color: #93c5fd; }
@@ -354,9 +362,7 @@
             padding: 3px 10px; border-radius: 8px; display: inline-block;
         }
         .sync-ok { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
-        .sync-err { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
 
-        /* MODAL */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.7);
             display: none; align-items: center; justify-content: center;
@@ -371,33 +377,26 @@
         }
 
         .modal-title { font-size: 15px; font-weight: 800; margin-bottom: 6px; letter-spacing: 0.05em; }
-        .modal-sub {
-            font-family: 'JetBrains Mono', monospace; font-size: 9px;
-            color: var(--text-dim); letter-spacing: 0.1em; margin-bottom: 20px;
-        }
-
         #passInput {
             width: 100%; background: var(--surface2);
             border: 1.5px solid var(--border); color: var(--text); text-align: center;
             font-family: 'JetBrains Mono', monospace; font-size: 28px; letter-spacing: 0.3em;
             padding: 14px; border-radius: 16px; outline: none; margin-bottom: 16px;
-            transition: border-color 0.2s;
         }
-        #passInput:focus { border-color: var(--amber); }
 
         .modal-btns { display: flex; gap: 10px; }
         .modal-btn {
             flex: 1; padding: 12px; border-radius: 14px;
             font-family: 'Syne', sans-serif; font-weight: 800;
             font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-            border: none; cursor: pointer; transition: all 0.15s;
+            border: none; cursor: pointer;
         }
         .modal-btn-ok { background: var(--amber); color: #1a0e00; }
         .modal-btn-cancel { background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border); }
 
         .empty-state {
             text-align: center; padding: 60px 20px; color: var(--text-muted);
-            font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em;
+            font-family: 'JetBrains Mono', monospace; font-size: 11px;
         }
 
         .col-bd { border-right: 1px solid var(--border); }
@@ -406,24 +405,20 @@
             #auth-screen, .header-actions, .controls-grid, .del-cat-btn, .del-item-btn { display: none !important; }
             body { background: white !important; color: black !important; }
             .category-block { border: 1px solid #ccc !important; break-inside: avoid; }
-            input { background: transparent !important; border: none !important; color: black !important; }
         }
     </style>
 </head>
 <body>
 
-<!-- AUTH -->
 <div id="auth-screen">
     <div class="auth-emoji">🛒</div>
     <div class="auth-title">ХЦ Баранчик</div>
     <div class="auth-sub">Чек-лист закупки</div>
-    <input type="password" id="auth-pin" inputmode="numeric" pattern="[0-9]*"
-           autocomplete="one-time-code" autofocus placeholder="• • • •">
+    <input type="password" id="auth-pin" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" autofocus placeholder="• • • •">
     <button class="auth-btn" onclick="checkAuth()">Увійти</button>
-    <div id="auth-error">Невірний PIN. Спробуйте ще раз.</div>
+    <div id="auth-error">Невірний PIN.</div>
 </div>
 
-<!-- APP -->
 <div id="app-content">
     <header>
         <div class="header-inner">
@@ -473,7 +468,6 @@
     </main>
 </div>
 
-<!-- PASS MODAL -->
 <div class="modal-overlay" id="passwordModal">
     <div class="modal-box">
         <div class="modal-title">🔐 Доступ до норм</div>
@@ -489,23 +483,21 @@
 <script>
     const PASS_ENTRY = "2024";
     const PIN = "3196";
+    const TG_TOKEN = "7906609865:AAGxiiMSSnJcShk5SoxE7eVItyqDcWvyE38";
+    const TG_CHAT_ID = "-1002336484919";
+    const TG_THREAD_ID = 15;
 
     function checkAuth() {
         const val = document.getElementById('auth-pin').value.trim();
-        const err = document.getElementById('auth-error');
         if (val === PASS_ENTRY) {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-content').style.display = 'block';
         } else {
+            const err = document.getElementById('auth-error');
             err.classList.add('show');
-            document.getElementById('auth-pin').value = '';
             setTimeout(() => err.classList.remove('show'), 2500);
         }
     }
-
-    document.getElementById('auth-pin').addEventListener('keypress', e => {
-        if (e.key === 'Enter') checkAuth();
-    });
 
     let isUnlocked = false;
     let store = { categories: {}, items: {} };
@@ -513,16 +505,13 @@
     function getIsWeekend() { return [0, 5, 6].includes(new Date().getDay()); }
 
     window.addEventListener('firebase-ready', () => {
-        document.getElementById('date-label').textContent =
-            new Date().toLocaleDateString('uk-UA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
+        document.getElementById('date-label').textContent = new Date().toLocaleDateString('uk-UA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         const isWe = getIsWeekend();
         const modeEl = document.getElementById('mode-label');
         if (isWe) {
             modeEl.textContent = 'Вихідні';
             modeEl.style.cssText = 'background:rgba(245,158,11,0.12);color:#f59e0b;border-color:rgba(245,158,11,0.2);';
         }
-
         window.fOnValue(window.fRef(window.db, 'v7'), snap => {
             const val = snap.val() || {};
             store.categories = val.categories || {};
@@ -537,180 +526,72 @@
 
     function render() {
         const container = document.getElementById('checklist-container');
-        const isWe = getIsWeekend();
-        const catIds = Object.keys(store.categories)
-            .sort((a, b) => store.categories[a].name.localeCompare(store.categories[b].name));
-
-        if (!catIds.length) {
-            container.innerHTML = '<div class="empty-state">Ще немає розділів. Створіть перший вище.</div>';
-            return;
-        }
+        const catIds = Object.keys(store.categories).sort((a, b) => store.categories[a].name.localeCompare(store.categories[b].name));
+        if (!catIds.length) { container.innerHTML = '<div class="empty-state">Немає розділів</div>'; return; }
 
         container.innerHTML = catIds.map(catId => {
-            const cat = store.categories[catId];
-            const items = Object.keys(store.items)
-                .filter(id => store.items[id].catId === catId)
-                .sort((a, b) => store.items[a].name.localeCompare(store.items[b].name));
-
+            const items = Object.keys(store.items).filter(id => store.items[id].catId === catId).sort((a, b) => store.items[a].name.localeCompare(store.items[b].name));
             const rows = items.map(itemId => {
                 const item = store.items[itemId];
                 const s = parseFloat(item.s) || 0;
-                const wd = parseFloat(item.wd) || 0;
-                const we = parseFloat(item.we) || 0;
-                const orderWd = Math.max(0, wd - s);
-                const orderWe = Math.max(0, we - s);
-
+                const orderWd = Math.max(0, (parseFloat(item.wd) || 0) - s);
+                const orderWe = Math.max(0, (parseFloat(item.we) || 0) - s);
                 return `<tr>
-                    <td>
-                        <div class="item-name">
-                            <span>${item.name}</span>
-                            ${isUnlocked ? `<button class="del-item-btn" onclick="deleteItem('${itemId}')">✕</button>` : ''}
-                        </div>
-                    </td>
-                    <td><input type="number" step="0.1" value="${item.s || ''}" onchange="updateVal('${itemId}','s',this.value)" onfocus="this.select()" class="inp-stock"></td>
-                    <td><input type="number" step="0.1" value="${item.wd || ''}" ${!isUnlocked ? 'readonly' : ''} onchange="updateVal('${itemId}','wd',this.value)" onfocus="this.select()" class="${isUnlocked ? 'inp-norm-edit' : 'inp-norm inp-readonly'}"></td>
-                    <td class="col-bd"><input type="number" step="0.1" value="${item.we || ''}" ${!isUnlocked ? 'readonly' : ''} onchange="updateVal('${itemId}','we',this.value)" onfocus="this.select()" class="${isUnlocked ? 'inp-norm-edit' : 'inp-norm inp-readonly'}"></td>
+                    <td><div class="item-name"><span>${item.name}</span>${isUnlocked ? `<button class="del-item-btn" onclick="deleteItem('${itemId}')">✕</button>` : ''}</div></td>
+                    <td><input type="number" step="0.1" value="${item.s || ''}" onchange="updateVal('${itemId}','s',this.value)" class="inp-stock"></td>
+                    <td><input type="number" step="0.1" value="${item.wd || ''}" ${!isUnlocked ? 'readonly' : ''} onchange="updateVal('${itemId}','wd',this.value)" class="${isUnlocked ? 'inp-norm-edit' : 'inp-norm inp-readonly'}"></td>
+                    <td class="col-bd"><input type="number" step="0.1" value="${item.we || ''}" ${!isUnlocked ? 'readonly' : ''} onchange="updateVal('${itemId}','we',this.value)" class="${isUnlocked ? 'inp-norm-edit' : 'inp-norm inp-readonly'}"></td>
                     <td style="text-align:center"><span class="order-badge ${orderWd > 0 ? 'badge-need' : 'badge-empty'}">${orderWd > 0 ? orderWd.toFixed(1) : '—'}</span></td>
                     <td style="text-align:center"><span class="order-badge ${orderWe > 0 ? 'badge-need' : 'badge-empty'}">${orderWe > 0 ? orderWe.toFixed(1) : '—'}</span></td>
                 </tr>`;
             }).join('');
-
             return `<div class="category-block">
-                <div class="cat-header">
-                    <span class="cat-title">${cat.name}</span>
-                    ${isUnlocked ? `<button class="del-cat-btn" onclick="deleteCategory('${catId}')">✕ видалити розділ</button>` : ''}
-                </div>
+                <div class="cat-header"><span class="cat-title">${store.categories[catId].name}</span>${isUnlocked ? `<button class="del-cat-btn" onclick="deleteCategory('${catId}')">✕ видалити розділ</button>` : ''}</div>
                 <div class="table-wrap">
                     <table>
-                        <thead><tr>
-                            <th style="text-align:left">Товар</th>
-                            <th>Залишок</th><th>Бд</th>
-                            <th class="col-bd">Вх</th>
-                            <th>Зам. Бд</th><th>Зам. Вх</th>
-                        </tr></thead>
-                        <tbody>${rows || '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted);font-family:JetBrains Mono,monospace;font-size:10px">Немає позицій</td></tr>'}</tbody>
+                        <thead><tr><th>Товар</th><th>Залишок</th><th>Бд</th><th class="col-bd">Вх</th><th>Зам Бд</th><th>Зам Вх</th></tr></thead>
+                        <tbody>${rows || '<tr><td colspan="6" style="text-align:center;padding:15px">Пусто</td></tr>'}</tbody>
                     </table>
                 </div>
             </div>`;
         }).join('');
     }
 
-    function updateSelect() {
-        document.getElementById('selCat').innerHTML =
-            Object.keys(store.categories)
-                .sort((a, b) => store.categories[a].name.localeCompare(store.categories[b].name))
-                .map(id => `<option value="${id}">${store.categories[id].name}</option>`).join('')
-            || '<option>Створіть розділ</option>';
-    }
-
-    function addCategory() {
-        const name = document.getElementById('inpCat').value.trim().toUpperCase();
-        if (!name) return;
-        window.fSet(window.fPush(window.fRef(window.db, 'v7/categories')), { name })
-            .then(() => { document.getElementById('inpCat').value = ''; });
-    }
-
-    function addItem() {
-        const catId = document.getElementById('selCat').value;
-        const name = document.getElementById('inpName').value.trim();
-        if (!catId || !name) return;
-        window.fSet(window.fPush(window.fRef(window.db, 'v7/items')), { catId, name, s: '', wd: '', we: '' })
-            .then(() => { document.getElementById('inpName').value = ''; });
-    }
-
+    function updateSelect() { document.getElementById('selCat').innerHTML = Object.keys(store.categories).map(id => `<option value="${id}">${store.categories[id].name}</option>`).join('') || '<option>Створіть розділ</option>'; }
+    function addCategory() { const name = document.getElementById('inpCat').value.trim().toUpperCase(); if (name) window.fSet(window.fPush(window.fRef(window.db, 'v7/categories')), { name }).then(() => document.getElementById('inpCat').value = ''); }
+    function addItem() { const catId = document.getElementById('selCat').value; const name = document.getElementById('inpName').value.trim(); if (catId && name) window.fSet(window.fPush(window.fRef(window.db, 'v7/items')), { catId, name, s: '', wd: '', we: '' }).then(() => document.getElementById('inpName').value = ''); }
     function updateVal(id, field, val) { window.fSet(window.fRef(window.db, `v7/items/${id}/${field}`), val); }
-
-    function deleteItem(id) { if (confirm('Видалити позицію?')) window.fRemove(window.fRef(window.db, `v7/items/${id}`)); }
-
-    function deleteCategory(id) {
-        if (confirm('Видалити розділ і всі позиції?')) {
-            Object.keys(store.items).forEach(itemId => {
-                if (store.items[itemId].catId === id) window.fRemove(window.fRef(window.db, `v7/items/${itemId}`));
-            });
-            window.fRemove(window.fRef(window.db, `v7/categories/${id}`));
-        }
-    }
-
-    function clearStocks() {
-        if (confirm('Очистити всі залишки?'))
-            Object.keys(store.items).forEach(id => window.fSet(window.fRef(window.db, `v7/items/${id}/s`), ''));
-    }
-
-    function toggleLock() {
-        if (isUnlocked) { isUnlocked = false; render(); syncLockBtn(); }
-        else { document.getElementById('passwordModal').classList.add('open'); document.getElementById('passInput').focus(); }
-    }
-
-    function checkPass() {
-        if (document.getElementById('passInput').value === PIN) {
-            isUnlocked = true; closePass(); render(); syncLockBtn();
-        } else {
-            document.getElementById('passInput').value = '';
-            document.getElementById('passInput').style.borderColor = 'var(--red)';
-            setTimeout(() => document.getElementById('passInput').style.borderColor = '', 1000);
-        }
-    }
-
-    function closePass() {
-        document.getElementById('passwordModal').classList.remove('open');
-        document.getElementById('passInput').value = '';
-    }
-
-    document.getElementById('passInput').addEventListener('keypress', e => { if (e.key === 'Enter') checkPass(); });
-
-    function syncLockBtn() {
-        const b = document.getElementById('lockBtn');
-        b.textContent = isUnlocked ? '🔓 Заблокувати' : '🔒 Норми';
-        b.className = isUnlocked ? 'hbtn hbtn-lock unlocked' : 'hbtn hbtn-lock';
-    }
-
-    const TG_TOKEN = "7906609865:AAGxiiMSSnJcShk5SoxE7eVItyqDcWvyE38";
-    const TG_CHAT_ID = "-1002336484919";
+    function deleteItem(id) { if (confirm('Видалити?')) window.fRemove(window.fRef(window.db, `v7/items/${id}`)); }
+    function deleteCategory(id) { if (confirm('Видалити розділ?')) window.fRemove(window.fRef(window.db, `v7/categories/${id}`)); }
+    function clearStocks() { if (confirm('Очистити залишки?')) Object.keys(store.items).forEach(id => updateVal(id, 's', '')); }
+    function toggleLock() { if (isUnlocked) { isUnlocked = false; render(); syncLockBtn(); } else { document.getElementById('passwordModal').classList.add('open'); } }
+    function checkPass() { if (document.getElementById('passInput').value === PIN) { isUnlocked = true; closePass(); render(); syncLockBtn(); } else { document.getElementById('passInput').value = ''; } }
+    function closePass() { document.getElementById('passwordModal').classList.remove('open'); document.getElementById('passInput').value = ''; }
+    function syncLockBtn() { const b = document.getElementById('lockBtn'); b.textContent = isUnlocked ? '🔓 Заблокувати' : '🔒 Норми'; b.className = isUnlocked ? 'hbtn hbtn-lock unlocked' : 'hbtn hbtn-lock'; }
 
     async function shareToTelegram() {
-        let message = "📝 *ЗАМОВЛЕННЯ ХЦ - БАРАНЧИК*\n";
-        const today = new Date();
+        let message = "📝 *ЗАМОВЛЕННЯ ХЦ - БАРАНЧИК*\n\n";
         const isWe = getIsWeekend();
-        message += `📅 Дата: ${today.toLocaleDateString('uk-UA')}\n`;
-        message += `📊 Режим: *${isWe ? "Вихідні" : "Будні"}*\n\n`;
         let hasOrder = false;
-        Object.keys(store.categories)
-            .sort((a, b) => store.categories[a].name.localeCompare(store.categories[b].name))
-            .forEach(catId => {
-                let catText = `*${store.categories[catId].name}:*\n`;
-                let catHasItems = false;
-                Object.keys(store.items).filter(id => store.items[id].catId === catId).forEach(itemId => {
-                    const i = store.items[itemId];
-                    const s = parseFloat(i.s) || 0;
-                    const norm = isWe ? (parseFloat(i.we) || 0) : (parseFloat(i.wd) || 0);
-                    const order = Math.max(0, norm - s);
-                    if (order > 0) { catText += `• ${i.name}: *${order.toFixed(1)}*\n`; catHasItems = true; hasOrder = true; }
-                });
-                if (catHasItems) message += catText + "\n";
+        Object.keys(store.categories).forEach(catId => {
+            let catText = `*${store.categories[catId].name}:*\n`;
+            let itemsFound = false;
+            Object.keys(store.items).filter(id => store.items[id].catId === catId).forEach(itemId => {
+                const i = store.items[itemId];
+                const order = Math.max(0, (isWe ? parseFloat(i.we) : parseFloat(i.wd) || 0) - (parseFloat(i.s) || 0));
+                if (order > 0) { catText += `• ${i.name}: *${order.toFixed(1)}*\n`; itemsFound = true; hasOrder = true; }
             });
-        if (!hasOrder) { alert("✅ Залишки в нормі"); return; }
-
-        const tgBtn = document.querySelector('.hbtn-tg');
-        const origText = tgBtn.textContent;
-        tgBtn.textContent = '⏳ Відправка...';
-        tgBtn.disabled = true;
-
+            if (itemsFound) message += catText + "\n";
+        });
+        if (!hasOrder) return alert("Все в нормі");
         try {
             const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: TG_CHAT_ID, text: message, parse_mode: 'Markdown' })
+                body: JSON.stringify({ chat_id: TG_CHAT_ID, message_thread_id: TG_THREAD_ID, text: message, parse_mode: 'Markdown' })
             });
-            if (res.ok) {
-                tgBtn.textContent = '✅ Відправлено!';
-                setTimeout(() => { tgBtn.textContent = origText; tgBtn.disabled = false; }, 2500);
-            } else {
-                throw new Error('TG error');
-            }
-        } catch(e) {
-            tgBtn.textContent = '❌ Помилка';
-            setTimeout(() => { tgBtn.textContent = origText; tgBtn.disabled = false; }, 2000);
-        }
+            if (res.ok) alert("Відправлено!");
+        } catch(e) { alert("Помилка"); }
     }
 
     function toggleTheme() {
@@ -719,31 +600,23 @@
         localStorage.setItem('theme', isLight ? 'light' : 'dark');
     }
 
-    // Restore saved theme
     if (localStorage.getItem('theme') === 'light') {
         document.body.classList.add('light');
-        document.addEventListener('DOMContentLoaded', () => {
-            const btn = document.getElementById('themeBtn');
-            if (btn) btn.textContent = '☀️';
-        });
+        document.addEventListener('DOMContentLoaded', () => document.getElementById('themeBtn').textContent = '☀️');
     }
 
     function exportToExcel() {
-        const rows = [['Розділ', 'Товар', 'Залишок', 'Будні', 'Вихідні', 'Замовлення']];
-        const isWe = getIsWeekend();
+        const rows = [['Розділ', 'Товар', 'Залишок', 'Будні', 'Вихідні']];
         Object.keys(store.categories).forEach(catId => {
-            const catName = store.categories[catId].name;
             Object.keys(store.items).filter(id => store.items[id].catId === catId).forEach(itemId => {
                 const i = store.items[itemId];
-                const s = parseFloat(i.s) || 0;
-                const norm = isWe ? (parseFloat(i.we) || 0) : (parseFloat(i.wd) || 0);
-                rows.push([catName, i.name, i.s, i.wd, i.we, Math.max(0, norm - s) || '']);
+                rows.push([store.categories[catId].name, i.name, i.s, i.wd, i.we]);
             });
         });
         const ws = XLSX.utils.aoa_to_sheet(rows);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Закупка");
-        XLSX.writeFile(wb, `Zakupka_${new Date().toLocaleDateString()}.xlsx`);
+        XLSX.writeFile(wb, `Zakupka.xlsx`);
     }
 </script>
 </body>
