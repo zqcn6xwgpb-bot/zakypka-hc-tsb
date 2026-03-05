@@ -469,7 +469,7 @@
         input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none; margin: 0;
         }
-        .inp-stock    { background: rgba(79,142,247,0.07); border-color: rgba(79,142,247,0.18); color: var(--accent); }
+        .inp-stock    { background: rgba(79,142,247,0.12); border-color: rgba(79,142,247,0.35); color: var(--accent); box-shadow: inset 0 0 0 1px rgba(79,142,247,0.1); }
         .inp-norm     { background: var(--surface2); border-color: var(--border); color: var(--text-dim); }
         .inp-norm-edit { background: var(--amber-dim); border-color: rgba(251,191,36,0.3); color: var(--amber); }
         .inp-readonly  { opacity: 0.3; pointer-events: none; }
@@ -838,7 +838,8 @@
                         ${isUnlocked ? `<button class="del-item-btn" onclick="deleteItem('${itemId}')" title="Видалити">✕</button>` : ''}
                     </div></td>
                     <td><input type="number" step="0.1" value="${item.s || ''}"
-                        inputmode="decimal" onchange="updateVal('${itemId}','s',this.value)" class="inp-stock"></td>
+                        inputmode="decimal" onchange="updateVal('${itemId}','s',this.value)"
+                        onfocus="this.select()" class="inp-stock"></td>
                     ${normCells}
                     <td><span class="order-badge ${orderWd > 0 ? 'badge-need' : 'badge-empty'}">${orderWd > 0 ? orderWd.toFixed(1) : '—'}</span></td>
                     <td><span class="order-badge ${orderWe > 0 ? 'badge-need' : 'badge-empty'}">${orderWe > 0 ? orderWe.toFixed(1) : '—'}</span></td>
