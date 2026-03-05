@@ -238,7 +238,7 @@
             background: var(--surface);
             border-bottom: 1px solid var(--border);
             padding: 14px 20px;
-            position: sticky; top: 0; z-index: 40;
+            position: relative;
             box-shadow: 0 2px 20px rgba(0,0,0,0.3);
         }
 
@@ -663,22 +663,24 @@
     </header>
 
     <main>
-        <div class="controls-grid">
-            <div class="control-card">
-                <div class="control-label">➕ Додати позицію</div>
-                <div class="control-row">
-                    <select id="selCat"></select>
-                    <input type="text" id="inpName" placeholder="Назва товару..."
-                        onkeydown="if(event.key==='Enter')addItem()">
-                    <button class="ctrl-btn" onclick="addItem()">OK</button>
+        <div id="admin-controls" style="display:none">
+            <div class="controls-grid">
+                <div class="control-card">
+                    <div class="control-label">➕ Додати позицію</div>
+                    <div class="control-row">
+                        <select id="selCat"></select>
+                        <input type="text" id="inpName" placeholder="Назва товару..."
+                            onkeydown="if(event.key==='Enter')addItem()">
+                        <button class="ctrl-btn" onclick="addItem()">OK</button>
+                    </div>
                 </div>
-            </div>
-            <div class="control-card">
-                <div class="control-label">📁 Новий розділ</div>
-                <div class="control-row">
-                    <input type="text" id="inpCat" placeholder="Назва розділу..."
-                        onkeydown="if(event.key==='Enter')addCategory()">
-                    <button class="ctrl-btn ctrl-btn-purple" onclick="addCategory()">Створити</button>
+                <div class="control-card">
+                    <div class="control-label">📁 Новий розділ</div>
+                    <div class="control-row">
+                        <input type="text" id="inpCat" placeholder="Назва розділу..."
+                            onkeydown="if(event.key==='Enter')addCategory()">
+                        <button class="ctrl-btn ctrl-btn-purple" onclick="addCategory()">Створити</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -821,6 +823,15 @@
                 const s       = parseFloat(item.s)  || 0;
                 const orderWd = Math.max(0, (parseFloat(item.wd) || 0) - s);
                 const orderWe = Math.max(0, (parseFloat(item.we) || 0) - s);
+
+                const normCells = isUnlocked ? `
+                    <td><input type="number" step="0.1" value="${item.wd || ''}"
+                        onchange="updateVal('${itemId}','wd',this.value)"
+                        class="inp-norm-edit"></td>
+                    <td class="col-sep"><input type="number" step="0.1" value="${item.we || ''}"
+                        onchange="updateVal('${itemId}','we',this.value)"
+                        class="inp-norm-edit"></td>` : '';
+
                 return `<tr>
                     <td><div class="item-name">
                         <span>${item.name}</span>
@@ -828,18 +839,26 @@
                     </div></td>
                     <td><input type="number" step="0.1" value="${item.s || ''}"
                         inputmode="decimal" onchange="updateVal('${itemId}','s',this.value)" class="inp-stock"></td>
-                    <td><input type="number" step="0.1" value="${item.wd || ''}"
-                        ${!isUnlocked ? 'readonly' : ''}
-                        onchange="updateVal('${itemId}','wd',this.value)"
-                        class="${isUnlocked ? 'inp-norm-edit' : 'inp-norm inp-readonly'}"></td>
-                    <td class="col-sep"><input type="number" step="0.1" value="${item.we || ''}"
-                        ${!isUnlocked ? 'readonly' : ''}
-                        onchange="updateVal('${itemId}','we',this.value)"
-                        class="${isUnlocked ? 'inp-norm-edit' : 'inp-norm inp-readonly'}"></td>
+                    ${normCells}
                     <td><span class="order-badge ${orderWd > 0 ? 'badge-need' : 'badge-empty'}">${orderWd > 0 ? orderWd.toFixed(1) : '—'}</span></td>
                     <td><span class="order-badge ${orderWe > 0 ? 'badge-need' : 'badge-empty'}">${orderWe > 0 ? orderWe.toFixed(1) : '—'}</span></td>
                 </tr>`;
             }).join('');
+
+            const colSpan = isUnlocked ? 6 : 4;
+
+            const colgroup = isUnlocked ? `
+                <colgroup>
+                    <col class="c-name"><col class="c-stock">
+                    <col class="c-wd"><col class="c-we">
+                    <col class="c-ord-wd"><col class="c-ord-we">
+                </colgroup>` : `
+                <colgroup>
+                    <col style="width:38%"><col style="width:18%">
+                    <col style="width:22%"><col style="width:22%">
+                </colgroup>`;
+
+            const normHeaders = isUnlocked ? `<th>Бд</th><th class="col-sep">Вх</th>` : '';
 
             return `<div class="category-block">
                 <div class="cat-header">
@@ -848,17 +867,13 @@
                 </div>
                 <div class="table-wrap">
                     <table>
-                        <colgroup>
-                            <col class="c-name"><col class="c-stock">
-                            <col class="c-wd"><col class="c-we">
-                            <col class="c-ord-wd"><col class="c-ord-we">
-                        </colgroup>
+                        ${colgroup}
                         <thead><tr>
                             <th>Товар</th><th>Залишок</th>
-                            <th>Бд</th><th class="col-sep">Вх</th>
+                            ${normHeaders}
                             <th>Зам Бд</th><th>Зам Вх</th>
                         </tr></thead>
-                        <tbody>${rows || '<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--text-muted);font-family:\'JetBrains Mono\',monospace;font-size:11px;">Порожньо</td></tr>'}</tbody>
+                        <tbody>${rows || `<tr><td colspan="${colSpan}" style="text-align:center;padding:18px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:11px;">Порожньо</td></tr>`}</tbody>
                     </table>
                 </div>
             </div>`;
@@ -938,6 +953,7 @@
         const b = document.getElementById('lockBtn');
         b.textContent = isUnlocked ? '🔓 Заблок.' : '🔒 Норми';
         b.className   = isUnlocked ? 'hbtn hbtn-lock unlocked' : 'hbtn hbtn-lock';
+        document.getElementById('admin-controls').style.display = isUnlocked ? 'block' : 'none';
     }
 
     /* ── TELEGRAM ── */
